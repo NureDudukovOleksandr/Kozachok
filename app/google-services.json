@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "703368002295",
+    "firebase_url": "https://kozachok-1cbb6-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "kozachok-1cbb6",
+    "storage_bucket": "kozachok-1cbb6.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:703368002295:android:77623c03c7d844489df1f2",
+        "android_client_info": {
+          "package_name": "dudukov.nure.kozachok"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "703368002295-l7golt35dl8jao5lnq12sh6ii8c8jftc.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dudukov.nure.kozachok",
+            "certificate_hash": "182b95644abbcddf2aeac88bd636ab46f998192b"
+          }
+        },
+        {
+          "client_id": "703368002295-bhel751mom91h2vnq4e1svuajg8hihpa.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBckjJQ2ZNoKBGxPmAac4-OviEYdxLv3LE"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "703368002295-bhel751mom91h2vnq4e1svuajg8hihpa.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
