@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "dudukov.nure.kozachok"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -67,6 +67,7 @@ dependencies {
     implementation(libs.androidx.navigation.runtime.ktx)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.firebase.firestore.ktx)
+    implementation(libs.androidx.datastore.core.android)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -77,7 +78,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:33.4.0"))
     implementation("com.google.firebase:firebase-analytics")
     implementation("io.coil-kt:coil-compose:1.3.2")
-
-
+    implementation ("com.jakewharton.threetenabp:threetenabp:1.4.4")
+    implementation ("com.google.code.gson:gson:2.8.9")
 
 }
