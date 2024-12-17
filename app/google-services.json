@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "703368002295-haqi1fm1ov1u2ul03ld670njec75hv8t.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "dudukov.nure.kozachok",
+            "certificate_hash": "6199a60773011c49bc5442a261a78cbb0a6b5f6f"
+          }
+        },
+        {
           "client_id": "703368002295-l7golt35dl8jao5lnq12sh6ii8c8jftc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
