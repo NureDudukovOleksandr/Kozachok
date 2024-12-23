@@ -2,11 +2,12 @@ package dudukov.nure.kozachok.Profile
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.google.firebase.auth.FirebaseAuth
@@ -25,7 +26,7 @@ fun ProfileScreen(onSignOut: () -> Unit) {
     var userData by remember { mutableStateOf<UserData?>(null) }
     var showDialog by remember { mutableStateOf(false) }
 
-    // Завантаження даних користувача
+    // Load user data
     LaunchedEffect(Unit) {
         val user = auth.currentUser
         user?.let {
@@ -87,49 +88,125 @@ fun ProfileContent(
     var height by remember { mutableStateOf(userData.height) }
     var weight by remember { mutableStateOf(userData.weight) }
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        TextField(value = name, onValueChange = { name = it }, label = { Text("Name") })
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(value = birthday, onValueChange = { birthday = it }, label = { Text("Birthday") })
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(value = height, onValueChange = { height = it }, label = { Text("Height") })
-        Spacer(modifier = Modifier.height(8.dp))
-        TextField(value = weight, onValueChange = { weight = it }, label = { Text("Weight") })
+    // Сортуємо тренування за датою (новіші дати першими)
+    val sortedTrainingData = userData.trainingData.sortedWith { training1, training2 ->
+        compareDates(training1.date, training2.date)
+    }
+
+    Column(modifier = Modifier
+        .padding(16.dp)
+        .fillMaxSize()) {
+
+        Text("Profile", style = MaterialTheme.typography.headlineMedium, modifier = Modifier.padding(bottom = 24.dp))
+
+        // Поля вводу
+        ProfileInputField(label = "Name", value = name, onValueChange = { name = it })
+        ProfileInputField(label = "Birthday", value = birthday, onValueChange = { birthday = it })
+        ProfileInputField(label = "Height", value = height, onValueChange = { height = it })
+        ProfileInputField(label = "Weight", value = weight, onValueChange = { weight = it })
+
         Spacer(modifier = Modifier.height(16.dp))
 
-        Button(onClick = {
-            onUpdateUserData(userData.copy(name = name, birthday = birthday, height = height, weight = weight))
-        }) {
+        // Кнопка для збереження змін
+        Button(
+            onClick = {
+                onUpdateUserData(userData.copy(name = name, birthday = birthday, height = height, weight = weight))
+            },
+            modifier = Modifier.fillMaxWidth()
+        ) {
             Text("Save Changes")
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
-        LazyColumn {
-            items(userData.trainingData) { training ->
-                Card(modifier = Modifier.padding(8.dp)) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        Text("Date: ${training.date}")
-                        Text("Weight: ${training.weight}")
-                        Text("Height: ${training.height}")
-                        Text("Exercises: ${training.exercisesCount}")
-                        Text("Hours: ${training.trainingHours}")
-                    }
-                }
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Історія тренувань
+        Text("Training History", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(8.dp))
+
+        // Горизонтальний список тренувань
+        LazyRow(
+            horizontalArrangement = Arrangement.spacedBy(16.dp),
+            contentPadding = PaddingValues(vertical = 8.dp)
+        ) {
+            items(sortedTrainingData) { training ->
+                TrainingCard(training = training)
             }
         }
 
-        Button(onClick = { onShowDialog() }, modifier = Modifier.padding(top = 16.dp)) {
+        Spacer(modifier = Modifier.height(24.dp))
+
+        // Кнопки для додавання тренування та виходу
+        Button(onClick = { onShowDialog() }, modifier = Modifier.fillMaxWidth()) {
             Text("Add Training")
         }
-        Button(onClick = onSignOut, modifier = Modifier.padding(top = 8.dp)) {
+        Spacer(modifier = Modifier.height(8.dp))
+        Button(onClick = onSignOut, modifier = Modifier.fillMaxWidth()) {
             Text("Sign Out")
         }
 
+        // Діалог додавання тренування
         if (showDialog) {
             TrainingDialog(
                 onDismiss = onDismissDialog,
                 onSave = onAddTraining
             )
+        }
+    }
+}
+
+// Оновлена функція порівняння дат з врахуванням дня, місяця та року
+fun compareDates(date1: String, date2: String): Int {
+    val parts1 = date1.split(".")
+    val parts2 = date2.split(".")
+
+    // Перевіряємо рік
+    val year1 = parts1[2].toIntOrNull() ?: 0
+    val year2 = parts2[2].toIntOrNull() ?: 0
+    if (year1 > year2) return -1 // Новіший рік має бути першим
+    if (year1 < year2) return 1
+
+    // Перевіряємо місяці
+    val month1 = parts1[1].toIntOrNull() ?: 0
+    val month2 = parts2[1].toIntOrNull() ?: 0
+    if (month1 > month2) return -1 // Новіший місяць має бути першим
+    if (month1 < month2) return 1
+
+    // Перевіряємо дні
+    val day1 = parts1[0].toIntOrNull() ?: 0
+    val day2 = parts2[0].toIntOrNull() ?: 0
+    if (day1 > day2) return -1 // Новіший день має бути першим
+    if (day1 < day2) return 1
+
+    return 0
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ProfileInputField(label: String, value: String, onValueChange: (String) -> Unit) {
+    TextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        modifier = Modifier.fillMaxWidth(),
+        colors = TextFieldDefaults.textFieldColors(containerColor = Color.Transparent)
+    )
+    Spacer(modifier = Modifier.height(8.dp))
+}
+
+@Composable
+fun TrainingCard(training: TrainingData) {
+    Card(
+        modifier = Modifier
+            .width(250.dp)
+            .padding(8.dp),
+        elevation = CardDefaults.cardElevation(4.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Text("Date: ${training.date}", style = MaterialTheme.typography.bodyMedium)
+            Text("Weight: ${training.weight} kg", style = MaterialTheme.typography.bodyMedium)
+            Text("Height: ${training.height} cm", style = MaterialTheme.typography.bodyMedium)
+            Text("Exercises: ${training.exercisesCount}", style = MaterialTheme.typography.bodyMedium)
+            Text("Training Hours: ${training.trainingHours} hrs", style = MaterialTheme.typography.bodyMedium)
         }
     }
 }
@@ -157,28 +234,26 @@ fun TrainingDialog(
         title = { Text("Add Training") },
         text = {
             Column {
-                TextField(value = date, onValueChange = { date = it }, label = { Text("Date") })
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(value = weight, onValueChange = { weight = it }, label = { Text("Weight (kg)") })
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(value = height, onValueChange = { height = it }, label = { Text("Height (cm)") })
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(value = exercises, onValueChange = { exercises = it }, label = { Text("Exercises") })
-                Spacer(modifier = Modifier.height(8.dp))
-                TextField(value = hours, onValueChange = { hours = it }, label = { Text("Training Hours") })
+                ProfileInputField(label = "Date (dd.mm.yyyy)", value = date, onValueChange = { date = it })
+                ProfileInputField(label = "Weight (kg)", value = weight, onValueChange = { weight = it })
+                ProfileInputField(label = "Height (cm)", value = height, onValueChange = { height = it })
+                ProfileInputField(label = "Exercises", value = exercises, onValueChange = { exercises = it })
+                ProfileInputField(label = "Training Hours", value = hours, onValueChange = { hours = it })
             }
         },
         confirmButton = {
             TextButton(onClick = {
-                onSave(
-                    TrainingData(
-                        date = date,
-                        weight = weight.toFloatOrNull() ?: 0f,
-                        height = height.toFloatOrNull() ?: 0f,
-                        exercisesCount = exercises.toIntOrNull() ?: 0,
-                        trainingHours = hours.toFloatOrNull() ?: 0f
+                if (date.isNotEmpty()) {
+                    onSave(
+                        TrainingData(
+                            date = date,
+                            weight = weight.toFloatOrNull() ?: 0f,
+                            height = height.toFloatOrNull() ?: 0f,
+                            exercisesCount = exercises.toIntOrNull() ?: 0,
+                            trainingHours = hours.toFloatOrNull() ?: 0f
+                        )
                     )
-                )
+                }
                 onDismiss()
             }) {
                 Text("Save")
